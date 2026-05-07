@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐厅账单计算活动图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #e6e6e6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0, 150, 255, 0.5);
+        }
+        
+        .description {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .diagram-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            overflow: auto;
+        }
+        
+        .activity-diagram {
+            width: 100%;
+            min-width: 1000px;
+            height: 600px;
+            position: relative;
+        }
+        
+        /* 泳道样式 */
+        .swimlane {
+            position: absolute;
+            width: 100%;
+            border: 2px solid #ccc;
+        }
+        
+        .swimlane-header {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 2px solid #ccc;
+        }
+        
+        .waiter-lane {
+            top: 0;
+            height: 120px;
+        }
+        
+        .system-lane {
+            top: 120px;
+            height: 480px;
+        }
+        
+        /* 节点样式 */
+        .node {
+            position: absolute;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-align: center;
+            min-width: 150px;
+            font-size: 14px;
+        }
+        
+        .start-node {
+            background: #2ecc71;
+            color: white;
+            left: 50px;
+            top: 30px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            min-width: auto;
+        }
+        
+        .end-node {
+            background: #e74c3c;
+            color: white;
+            left: 50px;
+            bottom: 30px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            min-width: auto;
+        }
+        
+        .action-node {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+        }
+        
+        .fork-node {
+            background: #333;
+            color: white;
+            width: 20px;
+            height: 60px;
+            min-width: auto;
+        }
+        
+        .join-node {
+            background: #333;
+            color: white;
+            width: 20px;
+            height: 60px;
+            min-width: auto;
+        }
+        
+        /* 箭头样式 */
+        .arrow {
+            position: absolute;
+            height: 2px;
+            background: #333;
+        }
+        
+        .arrow-head {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 10px solid #333;
+        }
+        
+        .vertical-arrow {
+            width: 2px;
+            height: auto;
+        }
+        
+        .code-box {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .code-box h3 {
+            margin-bottom: 15px;
+            color: #4dabf7;
+        }
+        
+        pre {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            color: #d4d4d4;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .explanation {
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .explanation h3 {
+            margin-bottom: 15px;
+            color: #4dabf7;
+        }
+        
+        .explanation ul {
+            text-align: left;
+            margin-left: 20px;
+            line-height: 1.6;
+        }
+        
+        .explanation li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>餐厅账单计算活动图</h1>
+        
+        <div class="description">
+            <p>此活动图展示了餐厅账单计算的完整流程，使用泳道区分服务员和系统的活动。流程包括读取订单、并行计算总价、折扣和服务费，最后计算并显示净价。</p>
+        </div>
+        
+        <div class="diagram-container">
+            <div class="activity-diagram">
+                <!-- 泳道 -->
+                <div class="swimlane waiter-lane">
+                    <div class="swimlane-header">服务员</div>
+                </div>
+                <div class="swimlane system-lane">
+                    <div class="swimlane-header">系统</div>
+                </div>
+                
+                <!-- 开始节点 -->
+                <div class="node start-node" style="left: 50px; top: 60px;"></div>
+                
+                <!-- 服务员活动 -->
+                <div class="node action-node" style="left: 120px; top: 50px;">提交订单</div>
+                
+                <!-- 系统活动 -->
+                <div class="node action-node" style="left: 120px; top: 200px;">读取订单</div>
+                
+                <!-- 分叉节点 -->
+                <div class="node fork-node" style="left: 320px; top: 190px;"></div>
+                
+                <!-- 并行活动 -->
+                <div class="node action-node" style="left: 400px; top: 150px;">计算总价</div>
+                <div class="node action-node" style="left: 400px; top: 280px;">确定折扣率</div>
+                <div class="node action-node" style="left: 400px; top: 410px;">确定服务费率</div>
+                
+                <!-- 合并节点 -->
+                <div class="node join-node" style="left: 600px; top: 190px;"></div>
+                
+                <!-- 后续活动 -->
+                <div class="node action-node" style="left: 680px; top: 200px;">应用折扣计算折扣后价格</div>
+                <div class="node action-node" style="left: 920px; top: 200px;">应用服务费计算净价</div>
+                <div class="node action-node" style="left: 1160px; top: 200px;">显示净价</div>
+                
+                <!-- 结束节点 -->
+                <div class="node end-node" style="left: 50px; top: 530px;"></div>
+                
+                <!-- 箭头 -->
+                <div class="arrow" style="left: 70px; top: 75px; width: 40px;"></div>
+                <div class="arrow-head" style="left: 110px; top: 70px;"></div>
+                
+                <div class="arrow vertical-arrow" style="left: 140px; top: 80px; height: 110px;"></div>
+                <div class="arrow-head" style="left: 136px; top: 190px; transform: rotate(90deg);"></div>
+                
+                <div class="arrow" style="left: 170px; top: 215px; width: 140px;"></div>
+                <div class="arrow-head" style="left: 310px; top: 210px;"></div>
+                
+                <!-- 分叉后的箭头 -->
+                <div class="arrow vertical-arrow" style="left: 330px; top: 200px; height: 70px;"></div>
+                <div class="arrow-head" style="left: 326px; top: 270px; transform: rotate(90deg);"></div>
+                
+                <div class="arrow" style="left: 340px; top: 175px; width: 50px;"></div>
+                <div class="arrow-head" style="left: 390px; top: 170px;"></div>
+                
+                <div class="arrow vertical-arrow" style="left: 330px; top: 220px; height: 70px;"></div>
+                <div class="arrow vertical-arrow" style="left: 330px; top: 220px; height: 190px;"></div>
+                
+                <div class="arrow" style="left: 340px; top: 305px; width: 50px;"></div>
+                <div class="arrow-head" style="left: 390px; top: 300px;"></div>
+                
+                <div class="arrow" style="left: 340px; top: 435px; width: 50px;"></div>
+                <div class="arrow-head" style="left: 390px; top: 430px;"></div>
+                
+                <!-- 合并前的箭头 -->
+                <div class="arrow" style="left: 470px; top: 175px; width: 120px;"></div>
+                <div class="arrow-head" style="left: 590px; top: 170px;"></div>
+                
+                <div class="arrow vertical-arrow" style="left: 470px; top: 305px; height: 95px;"></div>
+                <div class="arrow vertical-arrow" style="left: 590px; top: 220px; height: 85px;"></div>
+                
+                <div class="arrow" style="left: 470px; top: 435px; height: 175px;"></div>
+                
+                <!-- 合并后的箭头 -->
+                <div class="arrow" style="left: 620px; top: 215px; width: 50px;"></div>
+                <div class="arrow-head" style="left: 670px; top: 210px;"></div>
+                
+                <div class="arrow" style="left: 800px; top: 215px; width: 110px;"></div>
+                <div class="arrow-head" style="left: 910px; top: 210px;"></div>
+                
+                <div class="arrow" style="left: 1040px; top: 215px; width: 110px;"></div>
+                <div class="arrow-head" style="left: 1150px; top: 210px;"></div>
+                
+                <div class="arrow vertical-arrow" style="left: 1175px; top: 230px; height: 290px;"></div>
+                <div class="arrow-head" style="left: 1171px; top: 520px; transform: rotate(90deg);"></div>
+                
+                <div class="arrow" style="left: 70px; top: 545px; width: 1095px;"></div>
+                <div class="arrow-head" style="left: 1165px; top: 540px;"></div>
+            </div>
+        </div>
+        
+        <div class="code-box">
+            <h3>账单计算伪代码</h3>
+            <pre><code>// 读取订单
+function readOrder(order) {
+    return order.items;
+}
+
+// 计算总价（并行过程1）
+function calculateTotalPrice(items) {
+    let total = 0;
+    for (let item of items) {
+        total += item.price * item.quantity;
+    }
+    return total;
+}
+
+// 确定折扣率（并行过程2）
+function determineDiscountRate(order) {
+    if (order.customer.isVIP) {
+        return 0.1; // VIP客户享受10%折扣
+    } else if (order.totalAmount > 200) {
+        return 0.05; // 大额订单享受5%折扣
+    }
+    return 0; // 无折扣
+}
+
+// 确定服务费率（并行过程3）
+function determineServiceChargeRate(order) {
+    if (order.dineIn) {
+        return 0.1; // 堂食收取10%服务费
+    }
+    return 0; // 外卖无服务费
+}
+
+// 应用折扣计算折扣后价格
+function applyDiscount(totalPrice, discountRate) {
+    return totalPrice * (1 - discountRate);
+}
+
+// 应用服务费计算净价
+function applyServiceCharge(discountedPrice, serviceChargeRate) {
+    return discountedPrice * (1 + serviceChargeRate);
+}
+
+// 主流程
+function calculateBill(order) {
+    const items = readOrder(order);
+    
+    // 并行计算
+    const totalPrice = calculateTotalPrice(items);
+    const discountRate = determineDiscountRate(order);
+    const serviceChargeRate = determineServiceChargeRate(order);
+    
+    // 应用折扣和服务费
+    const discountedPrice = applyDiscount(totalPrice, discountRate);
+    const netPrice = applyServiceCharge(discountedPrice, serviceChargeRate);
+    
+    return netPrice;
+}</code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h3>活动图说明</h3>
+            <ul>
+                <li><strong>泳道</strong>：使用泳道清晰区分服务员和系统的活动范围</li>
+                <li><strong>并行处理</strong>：总价计算、折扣确定和服务费确定三个过程并行执行，提高效率</li>
+                <li><strong>分叉与合并节点</strong>：使用分叉节点开始并行处理，使用合并节点同步所有并行活动</li>
+                <li><strong>复杂过程分离</strong>：按照要求，三个计算过程分离为独立活动，不合并</li>
+                <li><strong>顺序依赖</strong>：折扣应用必须在总价和折扣率计算完成后进行，服务费应用必须在折扣后价格和服务费率计算完成后进行</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
